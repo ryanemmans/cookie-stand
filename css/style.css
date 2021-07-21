@@ -80,20 +80,22 @@ table {
 }
 
 th {
-  padding: 7px;
+  padding: 5.7px;
   text-align: left;
   vertical-align: middle;
   font-weight: bold;
+  width: 20px;
 }
 
 td {
   border: thin solid lightgray;
   padding: 7px;
   text-align: left;
+  width: 67px;
 }
 
 span {
-  width: 60px;
+  width: 50px;
   display: inline-block;
 }
 
