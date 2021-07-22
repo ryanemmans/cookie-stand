@@ -6,11 +6,6 @@
 // calculate the number of cookies each location must make every day
 // The number of cookies to make depends on the hours of operation (6:00 AM to 8:00 PM for all locations)
 
-// Factors unique to each location:
-// The minimum number of customers per hour.
-// The maximum number of customers per hour.
-// The average number of cookies purchased per customer.
-
 // Add and remove locations from daily projections report
 // Easily modify input numbers for each location based on day of the week, special events, and other factors
 
@@ -23,17 +18,6 @@
 // - using average cookies and random # of customers generated
 
 // store results for each location in separate array as property of object representing location
-
-// display values of each array as <ul>
-
-// calculated sum of hourly totals should resemble this:
-// Seattle
-// 6am: 16 cookies
-// 7am: 20 cookies
-// 8am: 35 cookies
-// etc.
-
-// TAKE RANDOM # OF CUSTOMERS, MULTIPLY COOKIE SALES, GET COOKIES PER HOUR
 
 const hourArray = ['6:00am: ', '7:00am: ', '8:00am: ', '9:00am: ', '10:00am: ', '11:00am: ', '12:00am: ', '1:00pm: ', '2:00pm: ', '3:00pm: ', '4:00pm: ', '5:00pm: ', '6:00pm: ', '7:00pm: '];
 const locArray = [];
@@ -61,7 +45,7 @@ Location.prototype.cookiesPerHour = function () {
   }
 }
 
-const locDivElem = document.getElementById('loc');
+const salesDivElem = document.getElementById('sales');
 let articleElem = document.createElement('article');
 
 // Wrap in a function for header
@@ -75,26 +59,22 @@ function makeElement(tagName, parent, textContent) {
   return element;
 }
 
+let tableElem = makeElement('table', articleElem, null);
+salesDivElem.appendChild(articleElem);
+articleElem.appendChild(tableElem);
+
 function tableHeader() {
-  const tableElem = makeElement('table', articleElem, null);
-  const tableHeaderElem = makeElement('tr', tableElem, null);
-  makeElement('th', tableHeaderElem, '');
-  makeElement('th', tableHeaderElem, '');
-  makeElement('th', tableHeaderElem, '');
+  const tableHeaderElem = makeElement('thead', tableElem, null);
   makeElement('th', tableHeaderElem, '');
   for (let i = 0; i < hourArray.length; i++) {
     makeElement('th', tableHeaderElem, hourArray[i]);
   }
   makeElement('th', tableHeaderElem, 'Daily Location Total');
-  locDivElem.appendChild(articleElem);
+  salesDivElem.appendChild(articleElem);
   articleElem.appendChild(tableElem);
 }
 
 tableHeader();
-
-let tableElem = makeElement('table', articleElem, null);
-locDivElem.appendChild(articleElem);
-articleElem.appendChild(tableElem);
 
 Location.prototype.render = function () {
   this.cookiesPerHour();
