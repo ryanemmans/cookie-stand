@@ -7,7 +7,7 @@ const tableElem = document.getElementById('sales');
 // for hours of operation
 const hoursOfOperation = ['6:00am', '7:00am', '8:00am', '9:00am', '10:00am', '11:00am', '12:00pm', '1:00pm', '2:00pm', '3:00pm', '4:00pm', '5:00pm', '6:00pm', '7:00pm'];
 
-// ----------------------------------- Constructor ----------------------------------- //
+// ----------------------------------- Constructor Functions----------------------------------- //
 
 // minCust, maxCust, avgCookiePerSale, locationName
 function Store(minCust, maxCust, avgCookiePerSale, name) {
@@ -20,7 +20,7 @@ function Store(minCust, maxCust, avgCookiePerSale, name) {
   Store.allStores.push(this)
 }
 
-// ----------------------------------- constructor related stuff ----------------------------------- //
+// ----------------------------------- Prototype Methods ----------------------------------- //
 
 Store.allStores = [];
 // getting random customer
