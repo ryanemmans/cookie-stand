@@ -88,8 +88,8 @@ article {
   margin-bottom: 40px;
 }
 
-article p {
-  width: 67%;
+.home {
+  width: 80%;
 }
 
 #familyImg, .fishImgs, .merchImgs {
