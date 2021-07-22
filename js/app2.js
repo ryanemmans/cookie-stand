@@ -4,7 +4,7 @@
 // I need to get a reference to where on the page I am putting stuff
 const tableElem = document.getElementById('sales');
 // for hours of operation
-const HoursOfOperation = ['6am', '7am', '8am', '9am', '10am', '11am', '12pm', '1pm', '2pm', '3pm', '4pm', '5pm', '6pm', '7pm'];
+const hoursOfOperation = ['6am', '7am', '8am', '9am', '10am', '11am', '12pm', '1pm', '2pm', '3pm', '4pm', '5pm', '6pm', '7pm'];
 
 
 
@@ -29,20 +29,21 @@ function Store(minCust, maxCust, avgCookiePerSale, name) {
 
 
 // ----------------------------------- constructor related stuff ----------------------------------- //
+Store.allStores = [];
 // getting random customer
-Store.prototype.randomCustInRange = function() {
+Store.prototype.randomCustInRange = function () {
   return Math.floor(Math.random() * (this.maxCust - this.minCust + 1) + this.minCust);
 }
 // calculates sale per hour based on rand cust
 Store.prototype.calculateSalesPerHour = function () {
-  for (let i = 0; i < HoursOfOperation.length; i++) {
+  for (let i = 0; i < hoursOfOperation.length; i++) {
     const thisHourSale = Math.ceil(this.randomCustInRange() * this.avgCookiePerSale)
     this.salesHourly.push(thisHourSale);
-  }  
+  }
 }
 // prototype method for render()
 // create a row, insert a th with the location name, insert salesHourly array values as td's, insert a th with grand total
-Store.prototype.renderStore = function(bodyElem) {
+Store.prototype.renderStore = function (bodyElem) {
   let grandTotal = 0;
   const rowElem = document.createElement('tr');
   bodyElem.appendChild(rowElem);
@@ -56,9 +57,9 @@ Store.prototype.renderStore = function(bodyElem) {
     grandTotal += hourlyTotal;
     rowElem.appendChild(tdElem);
   }
-  const grandTotalThElem = document.createElement('th');
-    tdElem.textContent = grandTotal;
-    rowElem.appendChild(grandTotalThElem);
+  const grandTotalThElem = document.createElement('td');
+  grandTotalThElem.textContent = grandTotal;
+  rowElem.appendChild(grandTotalThElem);
 }
 
 
@@ -67,6 +68,7 @@ Store.prototype.renderStore = function(bodyElem) {
 
 
 // ----------------------------------- Global Functions ----------------------------------- 
+// makes elements and adds them to the DOM
 function makeElement(tagName, parent, textContent) {
   let element = document.createElement(tagName);
   if (textContent) {
@@ -77,38 +79,65 @@ function makeElement(tagName, parent, textContent) {
 }
 
 // renders header
-function renderHeader(){
+function renderHeader() {
   const headerElem = makeElement('thead', tableElem, null);
   const rowElem = makeElement('tr', headerElem, null);
-  makeElement('td', rowElem, null);
-  for (let i =0; i < HoursOfOperation.length; i++);
+  makeElement('th', rowElem, null);
+  for (let i = 0; i < hoursOfOperation.length; i++) {
+    makeElement('th', rowElem, hoursOfOperation[i]);
+  }
+  makeElement('th', rowElem, 'Daily Location Total');
 }
 
 // loops through and renders all locations - maybe make a tbody??
 function rendersAllStores() {
   // create the tbody and append it to the table
   const bodyElem = makeElement('tbody', tableElem, null)
-  for (let i = 0; i < Store.allStores.length; i ++) {
+  for (let i = 0; i < Store.allStores.length; i++) {
     let currentStore = Store.allStores[i];
     currentStore.calculateSalesPerHour();
     currentStore.renderStore(bodyElem);
   }
 }
 // renders footer
-
-
-
-
-
-
+function renderFooter() {
+  // make tfoot element - give it a variable
+  // append tfoot to table
+  const footerElem = makeElement('tfoot', tableElem, null);
+  // make a row - append row to tfoot
+  const rowElem = makeElement('tr', footerElem, null);
+  // hourly total - make a variable
+  let hourlyTotal = 0;
+  // table grand total
+  let grandTotal = 0;
+  makeElement('th', rowElem, 'Hourly Totals:');
+  // first access the hour
+  for (let i = 0; i < hoursOfOperation.length; i++) {
+    // then look at the store (each store) at that hour
+    for (let j = 0; j < Store.allStores.length; j++) {
+      // get the store at the hours value and add it to hourly total
+      let storesSalesAtHour = Store.allStores[j].salesHourly[i];
+      hourlyTotal += storesSalesAtHour;
+    }
+    // add cell to row
+    makeElement('td', rowElem, hourlyTotal);
+    // add hourly total to grand total
+    grandTotal += hourlyTotal;
+    // have to reset hourly total once we are done adding data to the table
+    hourlyTotal = 0;
+  }
+  // add grand total to footer as last cell
+  makeElement('td', rowElem, grandTotal);
+}
 
 // ----------------------------------- Call Functions ----------------------------------- //
 
-const seattle = new Store(23, 65, 6.3, 'Seattle')
-const tokyo = new Store(3, 24, 1.2, 'Tokyo')
-const lima = new Store(2, 16, 4.6, 'Lima')
-
+const seattle = new Store(23, 65, 6.3, 'Seattle');
+const tokyo = new Store(3, 24, 1.2, 'Tokyo');
+const dubai = new Store(11, 38, 3.7, 'Dubai');
+const paris = new Store(20, 38, 2.3, 'Paris');
+const lima = new Store(2, 16, 4.6, 'Lima');
 
 renderHeader();
 rendersAllStores();
-
+renderFooter();
