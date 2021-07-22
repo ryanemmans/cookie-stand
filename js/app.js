@@ -1,55 +1,63 @@
 'use strict';
-// talk about contextual this tomorrow
 
-'use strict';
+// ----------------------------------- Global Variables ----------------------------------- //
 
-// calculate the number of cookies each location must make every day
-// The number of cookies to make depends on the hours of operation (6:00 AM to 8:00 PM for all locations)
+// I need to get a reference to where on the page I am putting stuff
+const tableElem = document.getElementById('sales');
+// for hours of operation
+const hoursOfOperation = ['6:00am', '7:00am', '8:00am', '9:00am', '10:00am', '11:00am', '12:00pm', '1:00pm', '2:00pm', '3:00pm', '4:00pm', '5:00pm', '6:00pm', '7:00pm'];
 
-// Add and remove locations from daily projections report
-// Easily modify input numbers for each location based on day of the week, special events, and other factors
+// ----------------------------------- Constructor ----------------------------------- //
 
-// shop location
-// min/max hourly customer
-// average cookies per customer
-// number of customers per hour
-
-// calculate/store cookies purchased for each hour at each location
-// - using average cookies and random # of customers generated
-
-// store results for each location in separate array as property of object representing location
-
-const hourArray = ['6:00am: ', '7:00am: ', '8:00am: ', '9:00am: ', '10:00am: ', '11:00am: ', '12:00am: ', '1:00pm: ', '2:00pm: ', '3:00pm: ', '4:00pm: ', '5:00pm: ', '6:00pm: ', '7:00pm: '];
-const locArray = [];
-
-function Location(name, minCust, maxCust, avgSale, hour) {
+// minCust, maxCust, avgCookiePerSale, locationName
+function Store(minCust, maxCust, avgCookiePerSale, name) {
   this.name = name;
   this.minCust = minCust;
   this.maxCust = maxCust;
-  this.avgSale = avgSale;
-  this.hour = hour;
-  this.cookies = [];
-  this.total = 0;
-  locArray.push(this)
+  this.avgCookiePerSale = avgCookiePerSale;
+  this.salesHourly = [];
+
+  Store.allStores.push(this)
 }
 
-Location.prototype.randomCust = function () {
+// ----------------------------------- constructor related stuff ----------------------------------- //
+
+Store.allStores = [];
+// getting random customer
+Store.prototype.randomCustInRange = function () {
   return Math.floor(Math.random() * (this.maxCust - this.minCust + 1) + this.minCust);
 }
-
-Location.prototype.cookiesPerHour = function () {
-  for (let i = 0; i < hourArray.length; i++) {
-    let sales = Math.floor(this.avgSale * this.randomCust());
-    this.cookies.push(sales);
-    this.total = this.total + sales;
+// calculates sale per hour based on rand cust
+Store.prototype.calculateSalesPerHour = function () {
+  for (let i = 0; i < hoursOfOperation.length; i++) {
+    const thisHourSale = Math.ceil(this.randomCustInRange() * this.avgCookiePerSale)
+    this.salesHourly.push(thisHourSale);
   }
 }
+// prototype method for render()
+// create a row, insert a th with the location name, insert salesHourly array values as td's, insert a th with grand total
+Store.prototype.renderStore = function (bodyElem) {
+  let grandTotal = 0;
+  const rowElem = document.createElement('tr');
+  bodyElem.appendChild(rowElem);
+  const locationThElem = document.createElement('th');
+  locationThElem.textContent = this.name;
+  rowElem.appendChild(locationThElem);
+  for (let i = 0; i < this.salesHourly.length; i++) {
+    const hourlyTotal = this.salesHourly[i]
+    const tdElem = document.createElement('td');
+    tdElem.textContent = hourlyTotal;
+    grandTotal += hourlyTotal;
+    rowElem.appendChild(tdElem);
+  }
+  const grandTotalThElem = document.createElement('td');
+  grandTotalThElem.textContent = grandTotal;
+  rowElem.appendChild(grandTotalThElem);
+}
 
-const salesDivElem = document.getElementById('sales');
-let articleElem = document.createElement('article');
+// ----------------------------------- Global Functions ----------------------------------- 
 
-// Wrap in a function for header
-
+// makes elements and adds them to the DOM
 function makeElement(tagName, parent, textContent) {
   let element = document.createElement(tagName);
   if (textContent) {
@@ -59,141 +67,73 @@ function makeElement(tagName, parent, textContent) {
   return element;
 }
 
-let tableElem = makeElement('table', articleElem, null);
-salesDivElem.appendChild(articleElem);
-articleElem.appendChild(tableElem);
-
-function tableHeader() {
-  const tableHeaderElem = makeElement('thead', tableElem, null);
-  makeElement('th', tableHeaderElem, '');
-  for (let i = 0; i < hourArray.length; i++) {
-    makeElement('th', tableHeaderElem, hourArray[i]);
+// renders header
+function renderHeader() {
+  const headerElem = makeElement('thead', tableElem, null);
+  const rowElem = makeElement('tr', headerElem, null);
+  makeElement('th', rowElem, null);
+  for (let i = 0; i < hoursOfOperation.length; i++) {
+    makeElement('th', rowElem, hoursOfOperation[i]);
   }
-  makeElement('th', tableHeaderElem, 'Daily Location Total');
-  salesDivElem.appendChild(articleElem);
-  articleElem.appendChild(tableElem);
+  makeElement('th', rowElem, 'Daily Location Total');
 }
 
-tableHeader();
-
-Location.prototype.render = function () {
-  this.cookiesPerHour();
-  const rowElem = makeElement('tr', tableElem, null);
-  makeElement('td', rowElem, this.name);
-  for (let i = 0; i < this.cookies.length; i++) {
-    const td = makeElement('td', rowElem, this.cookies[i]);
-    rowElem.appendChild(td);
+// loops through and renders all locations - maybe make a tbody??
+function rendersAllStores() {
+  // create the tbody and append it to the table
+  const bodyElem = makeElement('tbody', tableElem, null)
+  for (let i = 0; i < Store.allStores.length; i++) {
+    let currentStore = Store.allStores[i];
+    currentStore.calculateSalesPerHour();
+    currentStore.renderStore(bodyElem);
   }
-  makeElement('td', rowElem, this.total);
-  tableElem.appendChild(rowElem);
+}
+// renders footer
+function renderFooter() {
+  // make tfoot element - give it a variable
+  // append tfoot to table
+  const footerElem = makeElement('tfoot', tableElem, null);
+  // make a row - append row to tfoot
+  const rowElem = makeElement('tr', footerElem, null);
+  // hourly total - make a variable
+  let hourlyTotal = 0;
+  // table grand total
+  let grandTotal = 0;
+  makeElement('th', rowElem, 'Hourly Totals:');
+  // first access the hour
+  for (let i = 0; i < hoursOfOperation.length; i++) {
+    // then look at the store (each store) at that hour
+    for (let j = 0; j < Store.allStores.length; j++) {
+      // get the store at the hours value and add it to hourly total
+      let storesSalesAtHour = Store.allStores[j].salesHourly[i];
+      hourlyTotal += storesSalesAtHour;
+    }
+    // add cell to row
+    makeElement('td', rowElem, hourlyTotal);
+    // add hourly total to grand total
+    grandTotal += hourlyTotal;
+    // have to reset hourly total once we are done adding data to the table
+    hourlyTotal = 0;
+  }
+  // add grand total to footer as last cell
+  makeElement('td', rowElem, grandTotal);
 }
 
-const seattle = new Location('Seattle', 23, 65, 6.3, hourArray);
-const tokyo = new Location('Tokyo', 3, 24, 1.2, hourArray);
-const dubai = new Location('Dubai', 11, 38, 3.7, hourArray);
-const paris = new Location('Paris', 20, 38, 2.3, hourArray);
-const lima = new Location('Lima', 2, 16, 4.6, hourArray);
+// ----------------------------------- Call Functions ----------------------------------- //
 
-// create a function that gives us a random customer count
+const seattle = new Store(23, 65, 6.3, 'Seattle');
+const tokyo = new Store(3, 24, 1.2, 'Tokyo');
+const dubai = new Store(11, 38, 3.7, 'Dubai');
+const paris = new Store(20, 38, 2.3, 'Paris');
+const lima = new Store(2, 16, 4.6, 'Lima');
+
+renderHeader();
+rendersAllStores();
+renderFooter();
 
 console.log(seattle);
 console.log(tokyo);
 console.log(dubai);
 console.log(paris);
 console.log(lima);
-
-seattle.render();
-tokyo.render();
-dubai.render();
-paris.render();
-lima.render();
-
-function tableFooter() {
-const footerElem = makeElement('tr', tableElem, null);
-makeElement('td', footerElem, 'Totals:');
-}
-
-tableFooter();
-
-
-// call render function for header
-// total is nested for loop
-
-// --------------- OLD CODE ---------------
-
-// const seattle = {
-//   name: 'Seattle',
-//   minCust: 23,
-//   maxCust: 65,
-//   cookies: 0,
-//   avgSale: (6.3),
-//   hour: hourArray,
-//   total: 0,
-//   getCookies: function () {
-//     this.cookies = Math.floor(randomCust(this.minCust, this.maxCust) * this.avgSale)
-//     console.log(this.cookies);
-//   }
-// }
-
-// const tokyo = {
-//   name: 'Tokyo',
-//   minCust: 3,
-//   maxCust: 24,
-//   cookies: 0,
-//   avgSale: (1.2),
-//   hour: hourArray,
-//   total: 0,
-//   getCookies: function () {
-//     this.cookies = Math.floor(randomCust(this.minCust, this.maxCust) * this.avgSale)
-//     console.log(this.cookies);
-//   }
-// }
-
-// const dubai = {
-//   name: 'Dubai',
-//   minCust: 11,
-//   maxCust: 38,
-//   cookies: 0,
-//   avgSale: (3.7),
-//   hour: hourArray,
-//   total: 0,
-//   getCookies: function () {
-//     this.cookies = Math.floor(randomCust(this.minCust, this.maxCust) * this.avgSale)
-//     console.log(this.cookies);
-//   }
-// }
-
-// const paris = {
-//   name: 'Paris',
-//   minCust: 20,
-//   maxCust: 38,
-//   cookies: 0,
-//   avgSale: (2.3),
-//   hour: hourArray,
-//   total: 0,
-//   getCookies: function () {
-//     this.cookies = Math.floor(randomCust(this.minCust, this.maxCust) * this.avgSale)
-//     console.log(this.cookies);
-//   }
-// }
-
-// const lima = {
-//   name: 'Lima',
-//   minCust: 2,
-//   maxCust: 16,
-//   cookies: 0,
-//   avgSale: (4.6),
-//   hour: hourArray,
-//   total: 0,
-//   getCookies: function () {
-//     this.cookies = Math.floor(randomCust(this.minCust, this.maxCust) * this.avgSale)
-//     console.log(this.cookies);
-//   }
-// }
-
-// let h3Elem = document.createElement('h3');
-  // h3Elem.textContent = loc.name;
-  // articleElem.appendChild(h3Elem);
-
-  // let ulElem = document.createElement('ul');
-  // articleElem.appendChild(ulElem);
+console.log(tableElem);
