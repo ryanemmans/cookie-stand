@@ -70,6 +70,7 @@ main {
   justify-content: center;
   background-color: white;
   border: thin solid gray;
+  border-radius: 5px;
   box-shadow: 0px 0px 5px gray;
 }
 
@@ -152,7 +153,7 @@ table {
 
 th {
   padding: 2px;
-  text-align: left;
+  text-align: right;
   vertical-align: middle;
   font-weight: bold;
   width: 1px;
