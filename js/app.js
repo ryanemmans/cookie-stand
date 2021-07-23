@@ -26,6 +26,7 @@ Store.prototype.randomCustInRange = function () {
   return Math.floor(Math.random() * (this.maxCust - this.minCust + 1) + this.minCust);
 }
 Store.prototype.calculateSalesPerHour = function () {
+  this.salesHourly = [];
   for (let i = 0; i < hoursOfOperation.length; i++) {
     const thisHourSale = Math.ceil(this.randomCustInRange() * this.avgCookiePerSale)
     this.salesHourly.push(thisHourSale);
@@ -80,6 +81,7 @@ function rendersAllStores() {
     currentStore.render(tBodyElem);
   }
 }
+
 function renderFooter() {
   const footerElem = makeElement('tfoot', tableElem, null);
   const rowElem = makeElement('tr', footerElem, null);
@@ -107,11 +109,17 @@ function handleSubmit(e) {
   let avgCookiePerSale = e.target.avgCookiePerSale.value;
 
   let newStore = new Store(name, minCust, maxCust, avgCookiePerSale);
+  newStore.randomCustInRange();
   newStore.calculateSalesPerHour();
-  const tBodyElem = document.getElementsByTagName('tbody')[0];
-  newStore.render(tBodyElem);
+
+  tableElem.innerHTML = '';
+  renderHeader();
+  rendersAllStores();
+  renderFooter();
+
   e.target.reset();
 }
+// -------------------------------- Add Event Listeners -------------------------------- //
 
 formElem.addEventListener('submit', handleSubmit);
 
@@ -132,8 +140,5 @@ console.log(tokyo);
 console.log(dubai);
 console.log(paris);
 console.log(lima);
-console.log(tableElem);
-
-// TRY TO FIGURE THIS OUT: there is a way to clear out the current stuff in an element
-// re-render all stores when you add new store
+// console.log(tableElem);
 
